@@ -9,77 +9,41 @@ namespace First_upgrade
 {
     public class Task
     {
-        protected Type type;                    // Тип задачи 
-        protected string specialisation;        // Специализация к выполнению задачи 
-        protected bool status = false;          // Состояние выполнения задачи 
+        public Type Type { get; }                // Тип задачи 
+        public string Specialization { get; }        // Специализация к выполнению задачи 
+        public bool Status { get; set; }             // Состояние выполнения задачи 
 
-        public Task(Type type, string specialisation)
+        public Task(Type type, string specialization)
         {
-            this.type = type;
-            this.specialisation = specialisation;
+            Type = type;
+            Specialization = specialization;
         }
-
-        public Type GetTaskType()
-        {
-            return type;
-        }
-
-        public string GetSpecialisation()
-        {
-            return specialisation;
-        }
-
-        public bool GetStatus()
-        {
-            return status;
-        }
-
-        public void DoTask()
-        {
-            status = true; 
-        }       
     }
 
     public class Order 
     {
-        protected string orderName;       // Название заказа
-        protected List<Task> tasks;       // Список задач 
-        protected int time;               // Время данное на выполнение задачи 
+        public string OrderName { get;}       // Название заказа
+        public List<Task> Tasks { get; }      // Список задач 
+        public int Time { get; }              // Время данное на выполнение задачи 
 
         public Order(string orderName, List<Task> tasks, int time)
         {
-            this.orderName = orderName;
-            this.tasks = tasks;
-            this.time = time;
-        }
-
-        public List<Task> GetTasks()
-        {
-            return tasks;
-        }
-
-        public Task GetTask(int i)
-        {
-            return tasks[i];
-        }
-
-        public void DoTask(Task task)
-        {
-            int index = FindTask(task);
-            tasks[index].DoTask(); 
+            OrderName = orderName;
+            Tasks = tasks;
+            Time = time;
         }
 
         // Выполнены ли все задачи для отдела 
         public int CheckTasksDoneByDepartment(Department department)
         {
             int flag;
-            int count = 0;
-            int countUndone = 0;
-            foreach (var task in tasks)
+            var count = 0;
+            var countUndone = 0;
+            foreach (var task in Tasks)
             {
-                if (task.GetTaskType() == department.GetDepartmentType())
+                if (task.Type == department.DepartmentType)
                 {
-                    if (task.GetStatus())
+                    if (task.Status)
                         count++;
                     else
                         countUndone++;
@@ -96,73 +60,29 @@ namespace First_upgrade
                 // Проверяем, соответствует ли количество выполненных задач и количество специализаций
                 // что требовались к выполнению всех заданий заказа
 
-                if (count == TasksSpecialisations(department.GetDepartmentType()).Count)
-                {
-                    flag = 1;
-                }
-                else
-                {
-                    // Есть невыполненные задания
-                    flag = 0;
-                }
+                flag = (count == TasksSpecializations(department.DepartmentType).Count) ? 1 : 0;
             }
             
             return flag;
         }
 
-        public int FindTask(Task task)
+        // Количество специализаций в заказе у соответствующего отдела
+        public List<string> TasksSpecializations(Type type)
         {
-            int index = -1;
-            for (int i = 0; i < tasks.Count; i++)
-                if (tasks[i] == task)
-                    index = i;
-            return index;  
-        }
+            var listOfSpecializations = new List<string>();
 
-        public Type GetTaskType(int i)
-        {
-            return tasks[i].GetTaskType();
-        }
-
-        public string GetTaskSpecialisation(int i)
-        {
-            return tasks[i].GetSpecialisation();
+            foreach (var task in Tasks.Where(task => task.Type == type).Where(task => listOfSpecializations.IndexOf(task.Specialization) == -1))
+            {
+                // Добавляем специализацию в список 
+                listOfSpecializations.Add(task.Specialization);
+            }
+            listOfSpecializations.Sort();
+            return listOfSpecializations;
         }
 
         public int CountTasks()
         {
-            return tasks.Count;
-        }
-
-        // Количество специализаций в заказе у соответствующего отдела
-        public List<string> TasksSpecialisations(Type type)
-        {
-            List<string> listOfSpecialisations = new List<string>();
-
-            foreach (var task in tasks)
-            {
-                if (task.GetTaskType() == type)
-                {
-                    // Проверка есть ли текущая специализация в списке
-                    if (listOfSpecialisations.IndexOf(task.GetSpecialisation()) == -1) 
-                    {
-                        // Добавляем специализацию в список 
-                        listOfSpecialisations.Add(task.GetSpecialisation());
-                    }
-                }
-            }
-            listOfSpecialisations.Sort();
-            return listOfSpecialisations;
-        }
-
-        public int GetTime()
-        {
-            return time;
-        }
-
-        public string GetOrderName()
-        {
-            return orderName;
+            return Tasks.Count;
         }
     }
 }

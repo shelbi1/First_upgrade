@@ -23,31 +23,16 @@ namespace First_upgrade
     public class Employee
     {
         protected FullName person;
-        protected string specialisation;          // Специализация
-        protected int numberOfCompletedOrders;    // Количество выполненных заказов
-        protected int requiredTime;               // Необходимое время для выполнения задачи
+        public string Specialization { get; }               // Специализация
+        public int NumberOfCompletedOrders { get; set; }    // Количество выполненных заказов
+        protected int requiredTime;                         // Необходимое время для выполнения задачи
 
-        public Employee(FullName fullName, string specialisation, int numberOfCompletedOrders, int requiredTime)
+        public Employee(FullName fullName, string specialization, int numberOfCompletedOrders, int requiredTime)
         {
             person = fullName;
-            this.specialisation = specialisation;
-            this.numberOfCompletedOrders = numberOfCompletedOrders;
+            Specialization = specialization;
+            NumberOfCompletedOrders = numberOfCompletedOrders;
             this.requiredTime = requiredTime;
-        }
-
-        public string GetSpecialisation()
-        {
-            return specialisation;
-        }
-
-        public int GetNumberOfCompletedOrders()
-        {
-            return numberOfCompletedOrders;
-        }
-
-        public void IncreaseNumberOfCompletedOrders()
-        {
-            numberOfCompletedOrders++;
         }
 
         // Выполнить задачу 
@@ -55,8 +40,8 @@ namespace First_upgrade
         {
             if (EmployeeCheckTask(order, task))
             {
-                order.DoTask(task);
-                IncreaseNumberOfCompletedOrders();
+                task.Status = true; 
+                NumberOfCompletedOrders++;
             }
             else
             {
@@ -67,7 +52,7 @@ namespace First_upgrade
         // Проверка выполнения задачи
         public bool EmployeeCheckTask(Order order, Task task)
         {
-            return (specialisation == task.GetSpecialisation() && requiredTime < order.GetTime());
+            return (requiredTime < order.Time && Specialization == task.Specialization);
         }
     }
 }

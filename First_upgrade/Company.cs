@@ -10,13 +10,13 @@ namespace First_upgrade
     {
         protected string companyName;                 // Название компании
         protected List<Department> departments;       // Список отделов
-        protected List<Order> orders;                 // Список заказов 
+        public List<Order> Orders { get; }            // Список заказов 
 
         public Company(string companyName, List<Department> departments, List<Order> orders)
         {
             this.companyName = companyName;
             this.departments = departments;
-            this.orders = orders;
+            Orders = orders;
         }
 
         // Выполнение заказа (предоставление продукта)
@@ -30,15 +30,15 @@ namespace First_upgrade
                 switch (CheckOrder(order, department))
                 {
                     case 1:
-                        Console.Write($"Department {department.GetDepartmentName()} developed: ");
+                        Console.Write($"Department {department.DepartmentName} developed: ");
                         product = department.DepartmentCompleteOrder(order);
                         product.Output();
                         break;
                     case 0:
-                        Console.WriteLine($"Department {department.GetDepartmentName()} can't develop order");
+                        Console.WriteLine($"Department {department.DepartmentName} can't develop order");
                         break;
                     case -1:
-                        Console.WriteLine($"There aren't any tasks for the department {department.GetDepartmentName()}");
+                        Console.WriteLine($"There aren't any tasks for the department {department.DepartmentName}");
                         break;
                 }
             }
@@ -53,11 +53,6 @@ namespace First_upgrade
 
             // Проверка выполнения задач для данного отдела 
             return (order.CheckTasksDoneByDepartment(department));
-        }
-
-        public List<Order> GetOrders()
-        {
-            return orders;
         }
     }
 }

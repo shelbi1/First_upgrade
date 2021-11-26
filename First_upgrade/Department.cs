@@ -7,40 +7,29 @@ namespace First_upgrade
 {
     public abstract class Department
     {
-        protected string departmentName;            // Название отдела
-        protected List<Employee> employees;         // Список сотрудников 
-        protected Type departmentType;              // Тип отдела
-
-        public string GetDepartmentName()
-        {
-            return departmentName; 
-        }
-
-        public Type GetDepartmentType()
-        {
-            return departmentType;
-        }
+        public string DepartmentName { get; set; }      // Название отдела
+        protected List<Employee> employees;             // Список сотрудников 
+        public Type DepartmentType { get; set; }        // Тип отдела
 
         // Проверка возможности выполнить заказ
         public void DepartmentСheckOrder(Order order)
         {
-            List<string> tasksSpecialisations = order.TasksSpecialisations(departmentType);
-            List<string> departmentSpecialisationsList = DepartmentSpecialisations();
+            List<string> tasksSpecializations = order.TasksSpecializations(DepartmentType);
+            List<string> departmentSpecializationsList = DepartmentSpecializations();
 
             // Специализации в заказе должны соответствовать специализациям в отделе 
-            if (CheckTasksInDepartment(tasksSpecialisations, departmentSpecialisationsList))
+            if (CheckTasksInDepartment(tasksSpecializations, departmentSpecializationsList))
             {
-                List<Employee> minEmployees;
-                minEmployees = MinEmployees(order);
+                var minEmployees = MinEmployees(order);
 
                 foreach (var minEmployee in minEmployees)
                 {
-                    for (int i = 0; i < order.CountTasks(); i++)
+                    for (var i = 0; i < order.CountTasks(); i++)
                     {
-                        if (minEmployee.GetSpecialisation() == order.GetTaskSpecialisation(i) 
-                            && departmentType == order.GetTaskType(i))
+                        if (minEmployee.Specialization == order.Tasks[i].Specialization
+                            && DepartmentType == order.Tasks[i].Type)
                         {
-                            minEmployee.EmployeeCompleteTask(order, order.GetTask(i));
+                            minEmployee.EmployeeCompleteTask(order, order.Tasks[i]);
                         }
                     }
                 }
@@ -48,28 +37,24 @@ namespace First_upgrade
         }
 
         // Список неповторяющихся специализаций в отделе 
-        public List<string> DepartmentSpecialisations()
+        public List<string> DepartmentSpecializations()
         {
-            List<string> listOfSpecialisations = new List<string>();
+            var listOfSpecializations = new List<string>();
 
-            foreach (var employee in employees)
+            foreach (var employee in employees.Where(employee => listOfSpecializations.IndexOf(employee.Specialization) == -1))
             {
-                // Проверка есть ли текущая специализация в списке
-                if (listOfSpecialisations.IndexOf(employee.GetSpecialisation()) == -1) 
-                {
-                    // Добавляем в список текущую специализацию
-                    listOfSpecialisations.Add(employee.GetSpecialisation());
-                }
+                // Добавляем в список текущую специализацию
+                listOfSpecializations.Add(employee.Specialization);
             }
-            listOfSpecialisations.Sort();
-            return listOfSpecialisations;
+            listOfSpecializations.Sort();
+            return listOfSpecializations;
         }
 
         // Проверяет есть ли в отделе необходимые специализации для выполнения задач заказа (что уже соответсвуют по типу)
-        public bool CheckTasksInDepartment(List<string> tasksSpecialisations, List<string> departmentSpecialisations)
+        public bool CheckTasksInDepartment(List<string> tasksSpecializations, List<string> departmentSpecializations)
         {
-            var specialisations = tasksSpecialisations.Except(departmentSpecialisations);
-            return !specialisations.Any(); 
+            var specializations = tasksSpecializations.Except(departmentSpecializations);
+            return !specializations.Any(); 
 
             // Except - вычитает из списка задач все элементы, что есть в списке отдела. 
             // Проверяет входит ли полностью один список в другой 
@@ -79,38 +64,33 @@ namespace First_upgrade
         public List<Employee> MinEmployees(Order order)
         {
             // Список всех доступных сотрудников (по времени)
-            List<Employee> availableEmployees;
-            availableEmployees = DepartmentCheckTime(order); 
+            var availableEmployees = DepartmentCheckTime(order); 
             
-            List<Employee> min = new List<Employee>();  
-            int current = 0;
+            var min = new List<Employee>();  
+            var current = 0;
 
             // Список специализаций отдела
-            List<string> departmentSpecialisations = DepartmentSpecialisations();
+            List<string> departmentSpecializations = DepartmentSpecializations();
 
             // Флаг, что отвечает за то, встречалась ли такая специализация 
-            bool flag = false; 
-                        
-            foreach (var departmentSpecialisation in departmentSpecialisations)
-            {
-                flag = false;
-                foreach (var availableEmployee in availableEmployees)
-                {
-                    if (departmentSpecialisation == availableEmployee.GetSpecialisation())
-                    {
-                        if (!flag)
-                        {
-                            min.Add(availableEmployee);
-                            flag = true;
-                        }                        
-                        if (min[current].GetNumberOfCompletedOrders() > availableEmployee.GetNumberOfCompletedOrders())
-                        {
-                            // Если появился сотрудник с меньшим количеством выполненных задач, 
-                            // чем у сохранённого в данной специализации, то удаляем последнего и вносим в Min
 
-                            min.RemoveAt(min.Count - 1);
-                            min.Add(availableEmployee);
-                        }
+            foreach (var departmentSpecialization in departmentSpecializations)
+            {
+                var flag = false;
+                foreach (var availableEmployee in availableEmployees.Where(availableEmployee => departmentSpecialization == availableEmployee.Specialization))
+                {
+                    if (!flag)
+                    {
+                        min.Add(availableEmployee);
+                        flag = true;
+                    }                        
+                    if (min[current].NumberOfCompletedOrders > availableEmployee.NumberOfCompletedOrders)
+                    {
+                        // Если появился сотрудник с меньшим количеством выполненных задач, 
+                        // чем у сохранённого в данной специализации, то удаляем последнего и вносим в Min
+
+                        min.RemoveAt(min.Count - 1);
+                        min.Add(availableEmployee);
                     }
                 }
                 current++;
@@ -123,18 +103,18 @@ namespace First_upgrade
         // Проверка может ли отдел выполнить указанный заказ в срок
         public List<Employee> DepartmentCheckTime(Order order)
         {
-            int countTasks = order.CountTasks();
-            int countEmployees = employees.Count;
+            var countTasks = order.CountTasks();
+            var countEmployees = employees.Count;
 
-            List<Employee> availableEmployees = new List<Employee>();
+            var availableEmployees = new List<Employee>();
 
             if (countEmployees != 0)
             {
-                for (int i = 0; i < countTasks; i++)
+                for (var i = 0; i < countTasks; i++)
                 {
-                    for (int j = 0; j < countEmployees; j++)
+                    for (var j = 0; j < countEmployees; j++)
                     {
-                        if (employees[j].EmployeeCheckTask(order, order.GetTask(i)))
+                        if (employees[j].EmployeeCheckTask(order, order.Tasks[i]))
                         {
                             availableEmployees.Add(employees[j]);
                         }
@@ -160,9 +140,9 @@ namespace First_upgrade
     {
         public DesktopDepartment(string departmentName, List<Employee> employees)
         {
-            this.departmentName = departmentName;
+            DepartmentName = departmentName;
             this.employees = employees;
-            departmentType = Type.Desktop;
+            DepartmentType = Type.Desktop;
         }
 
         public override Product DepartmentCompleteOrder(Order order)
@@ -175,9 +155,9 @@ namespace First_upgrade
     {
         public MobileDepartment(string departmentName, List<Employee> employees)
         {
-            this.departmentName = departmentName;
+            this.DepartmentName = departmentName;
             this.employees = employees;
-            departmentType = Type.Mobile;
+            DepartmentType = Type.Mobile;
         }
 
         public override Product DepartmentCompleteOrder(Order order)
@@ -190,9 +170,9 @@ namespace First_upgrade
     {
         public WebDepartment(string departmentName, List<Employee> employees)
         {
-            this.departmentName = departmentName;
+            this.DepartmentName = departmentName;
             this.employees = employees;
-            departmentType = Type.Web;
+            DepartmentType = Type.Web;
         }
 
         public override Product DepartmentCompleteOrder(Order order)
