@@ -7,9 +7,16 @@ using System.Threading.Tasks;
 
 namespace First_upgrade
 {
+    public interface IOrder
+    {
+        int CheckTasksDoneByDepartment(Department department);
+        List<string> TasksSpecializations(Type type);
+        int CountTasks();
+    }
+
     public class Task
     {
-        public Type Type { get; }                // Тип задачи 
+        public Type Type { get; }                    // Тип задачи 
         public string Specialization { get; }        // Специализация к выполнению задачи 
         public bool Status { get; set; }             // Состояние выполнения задачи 
 
@@ -20,7 +27,7 @@ namespace First_upgrade
         }
     }
 
-    public class Order 
+    public class Order : IOrder
     {
         public string OrderName { get;}       // Название заказа
         public List<Task> Tasks { get; }      // Список задач 

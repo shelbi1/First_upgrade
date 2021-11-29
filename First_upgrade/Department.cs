@@ -5,7 +5,17 @@ using System.Linq;
 
 namespace First_upgrade
 {
-    public abstract class Department
+    public interface IDepartment
+    {
+        void DepartmentСheckOrder(Order order);
+        List<string> DepartmentSpecializations();
+        bool CheckTasksInDepartment(List<string> tasksSpecializations, List<string> departmentSpecializations);
+        List<Employee> MinEmployees(Order order);
+        List<Employee> DepartmentCheckTime(Order order);
+        Product DepartmentCompleteOrder(Order order);
+    }
+
+    public abstract class Department : IDepartment 
     {
         public string DepartmentName { get; set; }      // Название отдела
         protected List<Employee> employees;             // Список сотрудников 

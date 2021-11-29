@@ -20,7 +20,13 @@ namespace First_upgrade
         }
     }
 
-    public class Employee
+    public interface IEmployee
+    {
+        void EmployeeCompleteTask(Order order, Task task);
+        bool EmployeeCheckTask(Order order, Task task); 
+    }
+
+    public class Employee : IEmployee
     {
         protected FullName person;
         public string Specialization { get; }               // Специализация

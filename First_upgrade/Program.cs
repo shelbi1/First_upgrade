@@ -25,7 +25,7 @@
 
             // ЗАКАЗЫ
             var desktopApp = new Order("Desktop App", tasks, 21);
-            var orders = new List<Order>() { desktopApp };
+            var orders = new List<Order>() { desktopApp, null };
 
             // СОТРУДНИКИ
             var worker1 = new Employee(new FullName("P", "S", "A"), "Back-end Developer", 536, 11);
@@ -48,11 +48,18 @@
             var company = new Company("CompanyName", departments, orders);
 
             // Вывод информации о возможности выполнения заказа
-            for (var i = 0; i < company.Orders.Count; i++)
+            for (var i = 0; i < orders.Count; i++)
             {
-                Console.WriteLine($"Order {i} {orders[i].OrderName}: ");
-                company.CompleteOrder(orders[i]);
-                Console.WriteLine(" ");
+                if (orders[i] != null)
+                {
+                    Console.WriteLine($"Order {i + 1} {orders[i].OrderName}: ");
+                    company.CompleteOrder(orders[i]);
+                    Console.WriteLine(" ");
+                }
+                else
+                {
+                    Console.WriteLine("Empty order");
+                }
             }
 
             Console.ReadKey();
