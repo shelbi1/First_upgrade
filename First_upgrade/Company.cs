@@ -6,58 +6,91 @@ using System.Threading.Tasks;
 
 namespace First_upgrade
 {
-    public class Company
+    public interface ICompany
     {
-        protected string companyName;                 // Название компании
-        protected List<Department> departments;       // Список отделов
-        protected List<Order> orders;                 // Список заказов 
+        List<Product> CompleteOrder(Order order);
+        bool CheckOrder(Order order);
+        void Output(int option, Department department); 
+    }
+
+    public class Company : ICompany
+    {
+        protected string companyName;           // Название компании
+        protected List<Department> departments; // Список отделов
+        public List<Order> Orders { get; }      // Список заказов 
 
         public Company(string companyName, List<Department> departments, List<Order> orders)
         {
             this.companyName = companyName;
             this.departments = departments;
-            this.orders = orders;
+            Orders = orders;
         }
 
         // Выполнение заказа (предоставление продукта)
-        public Product CompleteOrder(Order order)
+        public List<Product> CompleteOrder(Order order)
         {
-            Product product = null;
+            if (order == null)
+            {
+                Console.WriteLine("Empty order");
+                return new List<Product>(); 
+            }
+            else
+            {
+                // условие предварительного выхода 
+                List<Product> products = new List<Product>();
+                int count = 0;
+                if (CheckOrder(order))
+                {
+                    foreach (var department in departments)
+                    {
+                        department.DepartmentDoOrder(order);
+                        var result = order.CheckTasksDoneByDepartment(department);
+                        Output(result, department);
+                        if (result == 1)
+                        {
+                            products.Add(department.DepartmentCompleteOrder(order));
+                            products[count].Output();
+                            count++;
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Company {companyName} can't develop order");
+                }
 
-            // Направлять во все отделы запрос на выполнение заказа 
+                return products;
+            }
+        }
+
+        // Проверить возможность выполнения заказа компанией
+        public bool CheckOrder(Order order)
+        {
+            var flag = true;
             foreach (var department in departments)
             {
-                switch (CheckOrder(order, department))
-                {
-                    case 1:
-                        Console.Write($"Department {department.GetDepartmentName()} developed: ");
-                        product = department.DepartmentCompleteOrder(order);
-                        product.Output();
-                        break;
-                    case 0:
-                        Console.WriteLine($"Department {department.GetDepartmentName()} can't develop order");
-                        break;
-                    case -1:
-                        Console.WriteLine($"There aren't any tasks for the department {department.GetDepartmentName()}");
-                        break;
-                }
+                if (!department.DepartmentСheckOrder(order))
+                    flag = false;
             }
 
-            return product;
+            return flag;
         }
 
-        // Проверить возможность выполнения заказа
-        public int CheckOrder(Order order, Department department)
+        // Вывод возможности выполнения задач отделом  
+        public void Output(int option, Department department)
         {
-            department.DepartmentСheckOrder(order);
-
-            // Проверка выполнения задач для данного отдела 
-            return (order.CheckTasksDoneByDepartment(department));
-        }
-
-        public List<Order> GetOrders()
-        {
-            return orders;
+            switch (option)
+            {
+                case 1:
+                    Console.Write($"Department {department.DepartmentName} developed: ");
+                    break;
+                case 0:
+                    Console.WriteLine($"Department {department.DepartmentName} can't develop order");
+                    break;
+                case -1:
+                    Console.WriteLine($"There aren't any tasks for the department {department.DepartmentName}");
+                    break;
+            }
         }
     }
 }

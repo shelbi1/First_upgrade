@@ -20,43 +20,21 @@ namespace First_upgrade
         }
     }
 
-    public class Employee
+    public abstract class Employee 
     {
         protected FullName person;
-        protected string specialisation;          // Специализация
-        protected int numberOfCompletedOrders;    // Количество выполненных заказов
-        protected int requiredTime;               // Необходимое время для выполнения задачи
-
-        public Employee(FullName fullName, string specialisation, int numberOfCompletedOrders, int requiredTime)
-        {
-            person = fullName;
-            this.specialisation = specialisation;
-            this.numberOfCompletedOrders = numberOfCompletedOrders;
-            this.requiredTime = requiredTime;
-        }
-
-        public string GetSpecialisation()
-        {
-            return specialisation;
-        }
-
-        public int GetNumberOfCompletedOrders()
-        {
-            return numberOfCompletedOrders;
-        }
-
-        public void IncreaseNumberOfCompletedOrders()
-        {
-            numberOfCompletedOrders++;
-        }
+        public string Specialization { get; set; }          // Специализация
+        public int NumberOfCompletedOrders { get; set; }    // Количество выполненных заказов
+        protected int requiredTime;                         // Необходимое время для выполнения задачи
 
         // Выполнить задачу 
-        public void EmployeeCompleteTask(Order order, Task task)
+        public void EmployeeCompleteTask(Order order, int i)
         {
-            if (EmployeeCheckTask(order, task))
+            if (EmployeeCheckTask(order, i))
             {
-                order.DoTask(task);
-                IncreaseNumberOfCompletedOrders();
+                order.Tasks[i].Status = true; 
+                NumberOfCompletedOrders++;
+                CreateProduct(); 
             }
             else
             {
@@ -65,9 +43,59 @@ namespace First_upgrade
         }
 
         // Проверка выполнения задачи
-        public bool EmployeeCheckTask(Order order, Task task)
+        public bool EmployeeCheckTask(Order order, int i)
         {
-            return (specialisation == task.GetSpecialisation() && requiredTime < order.GetTime());
+            return (requiredTime < order.Time && Specialization == order.Tasks[i].Specialization);
+        }
+
+        public abstract Product CreateProduct();
+    }
+
+    public class DesktopDeveloper : Employee
+    {
+        public DesktopDeveloper(FullName fullName, string specialization, int numberOfCompletedOrders, int requiredTime)
+        {
+            person = fullName;
+            Specialization = specialization;
+            NumberOfCompletedOrders = numberOfCompletedOrders;
+            this.requiredTime = requiredTime;
+        }
+
+        public override Product CreateProduct()
+        {
+            return new DesktopProduct("Desktop Product");
+        }
+    }
+
+    public class MobileDeveloper : Employee
+    {
+        public MobileDeveloper(FullName fullName, string specialization, int numberOfCompletedOrders, int requiredTime)
+        {
+            person = fullName;
+            Specialization = specialization;
+            NumberOfCompletedOrders = numberOfCompletedOrders;
+            this.requiredTime = requiredTime;
+        }
+
+        public override Product CreateProduct()
+        {
+            return new MobileProduct("Mobile Product");
+        }
+    }
+
+    public class WebDeveloper : Employee
+    {
+        public WebDeveloper(FullName fullName, string specialization, int numberOfCompletedOrders, int requiredTime)
+        {
+            person = fullName;
+            Specialization = specialization;
+            NumberOfCompletedOrders = numberOfCompletedOrders;
+            this.requiredTime = requiredTime;
+        }
+
+        public override Product CreateProduct()
+        {
+            return new WebProduct("Web Product");
         }
     }
 }
