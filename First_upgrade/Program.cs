@@ -28,32 +28,36 @@
             var orders = new List<Order>() { desktopApp, null };
 
             // СОТРУДНИКИ
-            var worker1 = new Employee(new FullName("P", "S", "A"), "Back-end Developer", 536, 11);
-            var worker2 = new Employee(new FullName("P", "S", "A"), "Front-end Developer", 17, 7);
-            var worker3 = new Employee(new FullName("P", "S", "A"), "Designer", 13, 5);
-            var worker4 = new Employee(new FullName("P", "S", "A"), "Designer", 11, 3);
-            var worker5 = new Employee(new FullName("P", "S", "A"), "Tester", 11, 5);
-            var worker6 = new Employee(new FullName("P", "S", "A"), "Front-end Developer", 17, 5);
-
+            var worker1 = new DesktopDeveloper(new FullName("P", "S", "A"), "Back-end Developer", 536, 11);
+            var worker2 = new DesktopDeveloper(new FullName("P", "S", "A"), "Front-end Developer", 17, 7);
+            var worker3 = new DesktopDeveloper(new FullName("P", "S", "A"), "Designer", 13, 5);
+            var worker4 = new DesktopDeveloper(new FullName("P", "S", "A"), "Designer", 11, 3);
+            var worker5 = new MobileDeveloper(new FullName("P", "S", "A"), "Designer", 11, 3);
+            var worker6 = new MobileDeveloper(new FullName("P", "S", "A"), "Tester", 11, 5);
+            var worker7 = new MobileDeveloper(new FullName("P", "S", "A"), "Front-end Developer", 17, 5);
+            var worker8 = new WebDeveloper(new FullName("P", "S", "A"), "Designer", 11, 3);
+            var worker9 = new WebDeveloper(new FullName("P", "S", "A"), "Tester", 11, 5);
+            var worker10 = new WebDeveloper(new FullName("P", "S", "A"), "Front-end Developer", 17, 5);
             var employees1 = new List<Employee>() { worker1, worker2, worker3, worker4 };
-            var employees2 = new List<Employee>() { worker4, worker5, worker6 };
+            var employees2 = new List<Employee>() { worker5, worker6, worker7 };
+            var employees3 = new List<Employee>() { worker8, worker9, worker10 };
 
             // ОТДЕЛЫ
             Department desktop = new DesktopDepartment("Desktop-development", employees1);
             Department mobile = new MobileDepartment("Mobile-development", employees2);
-            Department web = new WebDepartment("Web-development", employees2);
+            Department web = new WebDepartment("Web-development", employees3);
             var departments = new List<Department>() { desktop, mobile, web };
 
             // КОМПАНИЯ
             var company = new Company("CompanyName", departments, orders);
 
             // Вывод информации о возможности выполнения заказа
-            for (var i = 0; i < orders.Count; i++)
+            foreach(var order in orders)
             {
-                if (orders[i] != null)
+                if (order != null)
                 {
-                    Console.WriteLine($"Order {i + 1} {orders[i].OrderName}: ");
-                    company.CompleteOrder(orders[i]);
+                    Console.WriteLine($"Order {order.OrderName}: ");
+                    company.CompleteOrder(order);
                     Console.WriteLine(" ");
                 }
                 else

@@ -7,12 +7,14 @@ namespace First_upgrade
 {
     public interface IDepartment
     {
-        void DepartmentСheckOrder(Order order);
+        bool DepartmentСheckOrder(Order order);
         List<string> DepartmentSpecializations();
         bool CheckTasksInDepartment(List<string> tasksSpecializations, List<string> departmentSpecializations);
         List<Employee> MinEmployees(Order order);
         List<Employee> DepartmentCheckTime(Order order);
         Product DepartmentCompleteOrder(Order order);
+
+        void DepartmentDoOrder(Order order);
     }
 
     public abstract class Department : IDepartment 
@@ -22,16 +24,26 @@ namespace First_upgrade
         public Type DepartmentType { get; set; }        // Тип отдела
 
         // Проверка возможности выполнить заказ
-        public void DepartmentСheckOrder(Order order)
+        public bool DepartmentСheckOrder(Order order)
         {
             List<string> tasksSpecializations = order.TasksSpecializations(DepartmentType);
             List<string> departmentSpecializationsList = DepartmentSpecializations();
+            int countEmployees = 0;
+            int countTasksForDepartment = 0;
 
             // Специализации в заказе должны соответствовать специализациям в отделе 
             if (CheckTasksInDepartment(tasksSpecializations, departmentSpecializationsList))
             {
                 var minEmployees = MinEmployees(order);
 
+                // Считаем количество заданий для отдела 
+                foreach (var task in order.Tasks)
+                {
+                    if (task.Type == DepartmentType)
+                        countTasksForDepartment++; 
+                }
+
+                // Считаем количество сотрудников, что могут выполнить задания 
                 foreach (var minEmployee in minEmployees)
                 {
                     for (var i = 0; i < order.CountTasks(); i++)
@@ -39,11 +51,13 @@ namespace First_upgrade
                         if (minEmployee.Specialization == order.Tasks[i].Specialization
                             && DepartmentType == order.Tasks[i].Type)
                         {
-                            minEmployee.EmployeeCompleteTask(order, order.Tasks[i]);
+                            countEmployees++; 
                         }
                     }
                 }
             }
+            // Проверяем, совпадает ли количество сотрудников, которые должны выполнить задание и количество заданий на отдел 
+            return (countEmployees == countTasksForDepartment);
         }
 
         // Список неповторяющихся специализаций в отделе 
@@ -124,7 +138,7 @@ namespace First_upgrade
                 {
                     for (var j = 0; j < countEmployees; j++)
                     {
-                        if (employees[j].EmployeeCheckTask(order, order.Tasks[i]))
+                        if (employees[j].EmployeeCheckTask(order, i))
                         {
                             availableEmployees.Add(employees[j]);
                         }
@@ -139,6 +153,23 @@ namespace First_upgrade
             2. проверка, может ли данный сотрудник выполнить задачу 
             3. вернуть массив сотрудников, что выполняют задачу в срок
             */
+        }
+
+        // Выполнение всех заданий для отдела
+        public void DepartmentDoOrder(Order order)
+        {
+            var minEmployees = MinEmployees(order);
+            foreach (var minEmployee in minEmployees)
+            {
+                for (var i = 0; i < order.CountTasks(); i++)
+                {
+                    if (minEmployee.Specialization == order.Tasks[i].Specialization
+                        && DepartmentType == order.Tasks[i].Type)
+                    {
+                        minEmployee.EmployeeCompleteTask(order, i);
+                    }
+                }
+            }
         }
 
         // Выполнение заказа. возвращаем определённый наследник Product, соответсвующий отделу 

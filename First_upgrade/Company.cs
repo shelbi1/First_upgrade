@@ -35,6 +35,7 @@ namespace First_upgrade
             {
                 foreach (var department in departments)
                 {
+                    department.DepartmentDoOrder(order); 
                     var result = order.CheckTasksDoneByDepartment(department); 
                     Output(result, department);
                     if (result == 1)
@@ -59,10 +60,7 @@ namespace First_upgrade
             var flag = true;
             foreach (var department in departments)
             {
-                department.DepartmentСheckOrder(order);
-
-                // Условие проверки, если все задачи на отдел не могут быть выполнены 
-                if (order.CheckTasksDoneByDepartment(department) == 0)
+                if (!department.DepartmentСheckOrder(order))
                     flag = false;
             }
 
