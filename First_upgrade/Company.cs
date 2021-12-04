@@ -29,29 +29,38 @@ namespace First_upgrade
         // Выполнение заказа (предоставление продукта)
         public List<Product> CompleteOrder(Order order)
         {
-            List<Product> products = new List<Product>();
-            int count = 0;
-            if (CheckOrder(order))
+            if (order == null)
             {
-                foreach (var department in departments)
-                {
-                    department.DepartmentDoOrder(order); 
-                    var result = order.CheckTasksDoneByDepartment(department); 
-                    Output(result, department);
-                    if (result == 1)
-                    {
-                        products.Add(department.DepartmentCompleteOrder(order));
-                        products[count].Output();
-                        count++;
-                    }
-                }
+                Console.WriteLine("Empty order");
+                return new List<Product>(); 
             }
             else
             {
-                Console.WriteLine($"Company {companyName} can't develop order");
-            }
+                // условие предварительного выхода 
+                List<Product> products = new List<Product>();
+                int count = 0;
+                if (CheckOrder(order))
+                {
+                    foreach (var department in departments)
+                    {
+                        department.DepartmentDoOrder(order);
+                        var result = order.CheckTasksDoneByDepartment(department);
+                        Output(result, department);
+                        if (result == 1)
+                        {
+                            products.Add(department.DepartmentCompleteOrder(order));
+                            products[count].Output();
+                            count++;
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Company {companyName} can't develop order");
+                }
 
-            return products; 
+                return products;
+            }
         }
 
         // Проверить возможность выполнения заказа компанией
